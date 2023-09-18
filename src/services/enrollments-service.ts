@@ -24,6 +24,7 @@ type ViaCepAddress = {
 async function getOneWithAddressByUserId(userId: number): Promise<GetOneWithAddressByUserIdResult> {
   const enrollmentWithAddress = await enrollmentRepository.findWithAddressByUserId(userId);
 
+  if (enrollmentWithAddress.Address.length <= 0) throw requestError(httpStatus.BAD_REQUEST, "400 Bad Request");
   if (!enrollmentWithAddress) throw notFoundError();
 
   const [firstAddress] = enrollmentWithAddress.Address;
