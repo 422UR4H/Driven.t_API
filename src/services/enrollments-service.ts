@@ -1,33 +1,23 @@
 import { Address, Enrollment } from '@prisma/client';
-// import { AddressEnrollment } from '@/protocols';
 import httpStatus from 'http-status';
+import { AddressEnrollment } from '@/protocols';
 import { request } from '@/utils/request';
-import { requestError } from '@/errors';
-// import { enrollmentNotFoundError, invalidCepError } from '@/errors';
+import { requestError, enrollmentNotFoundError } from '@/errors';
 import { addressRepository, CreateAddressParams, enrollmentRepository, CreateEnrollmentParams } from '@/repositories';
 import { exclude } from '@/utils/prisma-utils';
 
-async function getAddressFromCEP(cep: string | number): Promise<ViaCepAddress> {
+async function getAddressFromCEP(cep: string | number): Promise<AddressEnrollment> {
   const result = await request.get(`${process.env.VIA_CEP_API}/${cep}/json/`);
   if (!result.data || result.data.erro) throw requestError(httpStatus.BAD_REQUEST, '400 Bad Request');
-  // throw invalidCepError();
 
   const { logradouro, complemento, bairro, localidade: cidade, uf } = result.data;
   return { logradouro, complemento, bairro, cidade, uf };
 }
 
-type ViaCepAddress = {
-  logradouro: string;
-  complemento: string;
-  bairro: string;
-  cidade: string;
-  uf: string;
-};
-
 async function getOneWithAddressByUserId(userId: number): Promise<GetOneWithAddressByUserIdResult> {
   const enrollmentWithAddress = await enrollmentRepository.findWithAddressByUserId(userId);
-  if (!enrollmentWithAddress) throw requestError(httpStatus.BAD_REQUEST, '400 Bad Request');
-  // throw enrollmentNotFoundError();
+  if (!enrollmentWithAddress) throw enrollmentNotFoundError();
+  // throw requestError(httpStatus.BAD_REQUEST, '400 Bad Request');
 
   const [firstAddress] = enrollmentWithAddress.Address;
   const address = getFirstAddress(firstAddress);

@@ -11,10 +11,6 @@ export type RequestError = {
   message: string;
 };
 
-export type ViaCEPAddressError = {
-  error: boolean;
-};
-
 export type AddressEnrollment = {
   logradouro: string;
   complemento: string;
