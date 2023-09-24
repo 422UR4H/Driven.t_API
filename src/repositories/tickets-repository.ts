@@ -13,7 +13,8 @@ function findTickets(id: number) {
 
 function createTicket(ticketTypeId: number, enrollmentId: number) {
     return prisma.ticket.create({
-        data: { ticketTypeId, enrollmentId, status: "RESERVED" }
+        data: { ticketTypeId, enrollmentId, status: "RESERVED" },
+        include: { TicketType: true }
     });
 }
 
