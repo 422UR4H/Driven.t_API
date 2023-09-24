@@ -1,5 +1,4 @@
 import { prisma } from '@/config';
-import { enrollmentRepository } from './enrollments-repository';
 
 function findTypes() {
     return prisma.ticketType.findMany();
