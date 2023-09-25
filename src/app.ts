@@ -4,13 +4,7 @@ import express, { Express } from 'express';
 import cors from 'cors';
 import { handleApplicationErrors } from '@/middlewares';
 import { loadEnv, connectDb, disconnectDB } from '@/config';
-import {
-  usersRouter,
-  authenticationRouter,
-  eventsRouter,
-  enrollmentsRouter,
-  ticketsRouter
-} from '@/routers';
+import { usersRouter, authenticationRouter, eventsRouter, enrollmentsRouter, ticketsRouter } from '@/routers';
 
 loadEnv();
 

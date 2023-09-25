@@ -13,7 +13,7 @@ async function findWithAddressByUserId(userId: number) {
 async function findEnrollmentId(userId: number) {
   return prisma.enrollment.findUnique({
     where: { userId },
-    select: { id: true }
+    select: { id: true },
   });
 }
 
