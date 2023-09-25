@@ -1,6 +1,7 @@
 import { AuthenticatedRequest } from "@/middlewares";
 import { ticketService } from "@/services/ticket-service";
 import { Request, Response } from "express";
+import httpStatus from "http-status";
 
 export async function getTicketsTypes(_req: Request, res: Response): Promise<void> {
     const result = await ticketService.getTicketsTypes();
@@ -17,5 +18,6 @@ export async function createTicket(req: AuthenticatedRequest, res: Response): Pr
     const { userId } = req;
     const { ticketTypeId } = req.body;
     const result = await ticketService.createTicket(userId, ticketTypeId);
-    res.send(result);
+
+    res.status(httpStatus.CREATED).send(result);
 }

@@ -8,7 +8,7 @@ function getTicketsTypes() {
 async function getTickets(id: number) {
     const result = await ticketRepository.findTickets(id);
     if (result?.Ticket == null) throw notFoundError();
-    return result;
+    return result.Ticket;
 }
 
 async function createTicket(userId: number, ticketTypeId: number) {
