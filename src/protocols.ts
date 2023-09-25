@@ -29,10 +29,11 @@ export type TicketTypeId = {
 
 export type CardData = {
   issuer: string;
-  number: number;
+  number: string;
   name: string;
-  expirationDate: Date;
-  cvv: number
+  expirationDate: string;
+  // expirationDate: Date;
+  cvv: string
 }
 
 export type PaymentProcess = {

@@ -1,5 +1,4 @@
 import { prisma } from "@/config";
-import { CardData } from "@/protocols";
 
 function create(ticketId: number, value: number, cardIssuer: string, cardLastDigits: string) {
     return prisma.payment.create({
@@ -7,6 +6,19 @@ function create(ticketId: number, value: number, cardIssuer: string, cardLastDig
     });
 }
 
+function get(ticketId: number) {
+    return prisma.payment.findUnique({
+        where: { ticketId },
+        include: {
+            Ticket: {
+                include: {
+                    Enrollment: { select: { userId: true } }
+                }
+            }
+        }
+    });
+}
+
 export const paymentRepository = {
-    create
+    create, get
 };
