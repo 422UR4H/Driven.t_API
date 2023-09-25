@@ -26,3 +26,16 @@ export type CEP = {
 export type TicketTypeId = {
   ticketTypeId: number;
 };
+
+export type CardData = {
+  issuer: string;
+  number: number;
+  name: string;
+  expirationDate: Date;
+  cvv: number
+}
+
+export type PaymentProcess = {
+  ticketId: number;
+  cardData: CardData;
+};

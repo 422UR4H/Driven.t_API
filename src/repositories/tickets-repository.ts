@@ -11,6 +11,16 @@ function findTickets(id: number) {
   });
 }
 
+function findById(id: number) {
+  return prisma.ticket.findUnique({
+    where: { id },
+    include: {
+      TicketType: { select: { price: true } },
+      Enrollment: { select: { userId: true } }
+    }
+  });
+}
+
 function createTicket(ticketTypeId: number, enrollmentId: number) {
   return prisma.ticket.create({
     data: { ticketTypeId, enrollmentId, status: 'RESERVED' },
@@ -21,5 +31,6 @@ function createTicket(ticketTypeId: number, enrollmentId: number) {
 export const ticketRepository = {
   findTypes,
   findTickets,
+  findById,
   createTicket,
 };
