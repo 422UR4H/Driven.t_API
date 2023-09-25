@@ -7,7 +7,7 @@ function findTypes() {
 function findTickets(id: number) {
     return prisma.enrollment.findFirst({
         where: { userId: id },
-        select: { Ticket: true }
+        select: { Ticket: { include: { TicketType: true } } }
     });
 }
 
