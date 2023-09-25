@@ -33,8 +33,8 @@ export type CardData = {
   name: string;
   expirationDate: string;
   // expirationDate: Date;
-  cvv: string
-}
+  cvv: string;
+};
 
 export type PaymentProcess = {
   ticketId: number;
