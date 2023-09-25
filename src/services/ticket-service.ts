@@ -5,9 +5,9 @@ function getTicketsTypes() {
     return ticketRepository.findTypes();
 }
 
-function getTickets(id: number) {
-    const result = ticketRepository.findTickets(id);
-    if (result == null) throw notFoundError();
+async function getTickets(id: number) {
+    const result = await ticketRepository.findTickets(id);
+    if (result?.Ticket == null) throw notFoundError();
     return result;
 }
 
