@@ -1,15 +1,20 @@
 import { TicketStatus } from '@prisma/client';
 import { prisma } from '@/config';
+// import { CreateTicketParams } from '@/protocols';
 
 function findTypes() {
   return prisma.ticketType.findMany();
 }
 
-function findTickets(id: number) {
+function findTicketByEnrollmentId(id: number) {
   return prisma.enrollment.findFirst({
     where: { userId: id },
     select: { Ticket: { include: { TicketType: true } } },
   });
+  // return prisma.ticket.findUnique({ // received enrollmentId in parameters
+  //   where: { enrollmentId },
+  //   include: { TicketType: true },
+  // });
 }
 
 function findById(id: number) {
@@ -22,24 +27,24 @@ function findById(id: number) {
   });
 }
 
-function createTicket(ticketTypeId: number, enrollmentId: number) {
+function createTicket(ticketTypeId: number, enrollmentId: number) { // ticket: CreateTicketParams
   return prisma.ticket.create({
-    data: { ticketTypeId, enrollmentId, status: TicketStatus.RESERVED },
+    data: { ticketTypeId, enrollmentId, status: TicketStatus.RESERVED }, // data: ticket,
     include: { TicketType: true },
   });
 }
 
-function updateTicket(id: number, status: TicketStatus) {
+function ticketProcessPayment(id: number, status: TicketStatus) {
   return prisma.ticket.update({
     where: { id },
     data: { status },
   });
 }
 
-export const ticketRepository = {
+export const ticketsRepository = {
   findTypes,
-  findTickets,
+  findTicketByEnrollmentId,
   findById,
   createTicket,
-  updateTicket,
+  ticketProcessPayment,
 };

@@ -1,12 +1,12 @@
 import { Payment, TicketStatus } from '@prisma/client';
 import { notFoundError, unauthorizedError } from '@/errors';
 import { CardData } from '@/protocols';
-import { ticketRepository } from '@/repositories';
+import { ticketsRepository } from '@/repositories';
 import { paymentRepository } from '@/repositories/payment-repository';
 import { LAST_DIGITS } from '@/utils/constants';
 
 async function create(userId: number, ticketId: number, cardData: CardData): Promise<Payment> {
-  const result = await ticketRepository.findById(ticketId);
+  const result = await ticketsRepository.findById(ticketId);
 
   if (result?.id == null) throw notFoundError();
   if (userId !== result.Enrollment.userId) throw unauthorizedError();
@@ -16,7 +16,7 @@ async function create(userId: number, ticketId: number, cardData: CardData): Pro
   const cardLastDigits = number.toString().slice(LAST_DIGITS);
   const payment = await paymentRepository.create(ticketId, price, issuer, cardLastDigits);
 
-  await ticketRepository.updateTicket(ticketId, TicketStatus.PAID);
+  await ticketsRepository.ticketProcessPayment(ticketId, TicketStatus.PAID);
   return payment;
 }
 
