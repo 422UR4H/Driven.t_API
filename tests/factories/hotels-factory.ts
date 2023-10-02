@@ -11,8 +11,8 @@ export async function createHotelsWithRooms(userId: number) {
                     name: faker.address.cityName(),
                     capacity: faker.datatype.number({ min: 1, max: 8 }),
                     Booking: {
-                        // create: { userId }
-                        connect: { id: userId }
+                        create: { userId }
+                        // connect: { id: userId }
                     }
                 }
             }
