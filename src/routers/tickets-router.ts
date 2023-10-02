@@ -3,7 +3,7 @@ import { createTicket, getTickets, getTicketsTypes } from '@/controllers/tickets
 // import { createTicket, getTickets, getTicketsTypes } from '@/controllers';
 import { authenticateToken, validateBody } from '@/middlewares';
 import { TicketTypeId } from '@/protocols';
-import { createTicketSchema } from '@/schemas/ticket-schemas';
+import { createTicketSchema } from '@/schemas/tickets-schemas';
 
 const ticketsRouter = Router();
 ticketsRouter
