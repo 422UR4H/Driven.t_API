@@ -12,6 +12,7 @@ import {
 import { TicketStatus } from '@prisma/client';
 import { prisma } from '@/config';
 import { createHotelsWithRooms } from '../factories/hotels-factory';
+import dayjs from 'dayjs';
 
 
 const server = supertest(app);
@@ -22,6 +23,19 @@ beforeAll(async () => {
 
 beforeEach(async () => {
     await cleanDb();
+
+    let event = await prisma.event.findFirst();
+    if (!event) {
+        event = await prisma.event.create({
+            data: {
+                title: "Driven.t",
+                logoImageUrl: "https://files.driven.com.br/images/logo-rounded.png",
+                backgroundImageUrl: "linear-gradient(to right, #FA4098, #FFD77F)",
+                startsAt: dayjs().toDate(),
+                endsAt: dayjs().add(21, "days").toDate(),
+            },
+        });
+    }
 });
 
 describe('GET /hotels/:hotelId', () => {
