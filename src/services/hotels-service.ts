@@ -16,7 +16,9 @@ async function getAllHotels(userId: number) {
     if (!TicketType.includesHotel) throw paymentRequiredError();
     if (TicketType.isRemote) throw paymentRequiredError();
 
-    return hotelsRepository.findAll();
+    const hotels = await hotelsRepository.findAll();
+    if (hotels.length < 1) throw notFoundError();
+    return hotels;
 }
 
 async function getHotelById(hotelId: number, userId: number) {
