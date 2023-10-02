@@ -7,11 +7,11 @@ import * as jwt from 'jsonwebtoken';
 import {
     createEnrollmentWithAddress,
     createTicket,
-    createTicketType,
     createUser
 } from '../factories';
 import { TicketStatus } from '@prisma/client';
 import { prisma } from '@/config';
+import { createHotelsWithRooms } from '../factories/hotels-factory';
 
 
 const server = supertest(app);
@@ -24,15 +24,15 @@ beforeEach(async () => {
     await cleanDb();
 });
 
-describe('GET /hotels', () => {
+describe('GET /hotels/:hotelId', () => {
     it('should respond with status 401 if no token is given', async () => {
-        const { status } = await server.get('/hotels');
+        const { status } = await server.get('/hotels/1');
         expect(status).toBe(httpStatus.UNAUTHORIZED);
     });
 
     it('should respond with status 401 if given token is not valid', async () => {
         const token = faker.lorem.word();
-        const { status } = await server.get('/hotels').set('Authorization', `Bearer ${token}`);
+        const { status } = await server.get('/hotels/1').set('Authorization', `Bearer ${token}`);
         expect(status).toBe(httpStatus.UNAUTHORIZED);
     });
 
@@ -40,14 +40,14 @@ describe('GET /hotels', () => {
         const user = await createUser();
         const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET);
 
-        const { status } = await server.get('/hotels').set('Authorization', `Bearer ${token}`);
+        const { status } = await server.get('/hotels/1').set('Authorization', `Bearer ${token}`);
         expect(status).toBe(httpStatus.UNAUTHORIZED);
     });
 
     describe('when token is valid', () => {
         it('should respond with status 404 when there is no enrollment for given user', async () => {
             const token = await generateValidToken();
-            const { status } = await server.get('/hotels').set('Authorization', `Bearer ${token}`);
+            const { status } = await server.get('/hotels/1').set('Authorization', `Bearer ${token}`);
             expect(status).toBe(httpStatus.NOT_FOUND);
         });
 
@@ -56,11 +56,11 @@ describe('GET /hotels', () => {
             const token = await generateValidToken(user);
             await createEnrollmentWithAddress(user);
 
-            const { status } = await server.get('/hotels').set('Authorization', `Bearer ${token}`);
+            const { status } = await server.get('/hotels/1').set('Authorization', `Bearer ${token}`);
             expect(status).toBe(httpStatus.NOT_FOUND);
         });
 
-        it.skip('should respond with status 404 when there is no hotel includes for given ticket', async () => {
+        it('should respond with status 404 when there is no hotel for given hotelId', async () => {
             const user = await createUser();
             const token = await generateValidToken(user);
             const enrollment = await createEnrollmentWithAddress(user);
@@ -68,13 +68,13 @@ describe('GET /hotels', () => {
                 data: {
                     name: faker.name.findName(),
                     price: faker.datatype.number(),
-                    isRemote: faker.datatype.boolean(),
-                    includesHotel: false,
+                    isRemote: false,
+                    includesHotel: true,
                 },
             });
             await createTicket(enrollment.id, ticketType.id, TicketStatus.PAID);
 
-            const { status } = await server.get('/hotels').set('Authorization', `Bearer ${token}`);
+            const { status } = await server.get('/hotels/1').set('Authorization', `Bearer ${token}`);
             expect(status).toBe(httpStatus.NOT_FOUND);
         });
 
@@ -93,7 +93,9 @@ describe('GET /hotels', () => {
                 });
                 await createTicket(enrollment.id, ticketType.id, TicketStatus.RESERVED);
 
-                const { status } = await server.get('/hotels').set('Authorization', `Bearer ${token}`);
+                const { id } = await createHotelsWithRooms(user.id);
+
+                const { status } = await server.get(`/hotels/${id}`).set('Authorization', `Bearer ${token}`);
                 expect(status).toBe(httpStatus.PAYMENT_REQUIRED);
             });
 
@@ -111,11 +113,13 @@ describe('GET /hotels', () => {
                 });
                 await createTicket(enrollment.id, ticketType.id, TicketStatus.PAID);
 
-                const { status } = await server.get('/hotels').set('Authorization', `Bearer ${token}`);
+                const { id } = await createHotelsWithRooms(user.id);
+
+                const { status } = await server.get(`/hotels/${id}`).set('Authorization', `Bearer ${token}`);
                 expect(status).toBe(httpStatus.PAYMENT_REQUIRED);
             });
 
-            it('should respond with status 402 when there is no PAID ticket for given user', async () => {
+            it('should respond with status 402 when there is no hotel includes for given ticket', async () => {
                 const user = await createUser();
                 const token = await generateValidToken(user);
                 const enrollment = await createEnrollmentWithAddress(user);
@@ -129,7 +133,9 @@ describe('GET /hotels', () => {
                 });
                 await createTicket(enrollment.id, ticketType.id, TicketStatus.PAID);
 
-                const { status } = await server.get('/hotels').set('Authorization', `Bearer ${token}`);
+                const { id } = await createHotelsWithRooms(user.id);
+
+                const { status } = await server.get(`/hotels/${id}`).set('Authorization', `Bearer ${token}`);
                 expect(status).toBe(httpStatus.PAYMENT_REQUIRED);
             });
 
@@ -147,20 +153,44 @@ describe('GET /hotels', () => {
                 });
                 await createTicket(enrollment.id, ticketType.id, TicketStatus.PAID);
 
-                const { status, body } = await server.get('/hotels').set('Authorization', `Bearer ${token}`);
+                const { id } = await createHotelsWithRooms(user.id);
+
+                const { status, body } = await server.get(`/hotels/${id}`).set('Authorization', `Bearer ${token}`);
                 expect(status).toBe(httpStatus.OK);
                 expect(body).toEqual(
-                    expect.arrayContaining(
-                        expect.objectContaining({
-                            id: expect.any(Number),
-                            name: expect.any(String),
-                            image: expect.any(String),
-                            createdAt: expect.any(Date),
-                            updatedAt: expect.any(Date),
-                        })
-                    )
+                    expect.objectContaining({
+                        id: expect.any(Number),
+                        name: expect.any(String),
+                        image: expect.any(String),
+                        createdAt: expect.any(Date),
+                        updatedAt: expect.any(Date),
+                        Rooms: expect.arrayContaining(
+                            expect.objectContaining({
+                                id: expect.any(Number),
+                                name: expect.any(String),
+                                capacity: expect.any(Number),
+                                hotelId: expect.any(Number),
+                                createdAt: expect.any(Date),
+                                updatedAt: expect.any(Date),
+                            })
+                        )
+                    })
                 );
             });
         });
     });
 });
+
+// const { status, body } = await server.get(`/hotels`).set('Authorization', `Bearer ${token}`);
+//                 expect(status).toBe(httpStatus.OK);
+//                 expect(body).toEqual(
+//                     expect.arrayContaining(
+//                         expect.objectContaining({
+//                             id: expect.any(Number),
+//                             name: expect.any(String),
+//                             image: expect.any(String),
+//                             createdAt: expect.any(Date),
+//                             updatedAt: expect.any(Date),
+//                         })
+//                     )
+//                 );
