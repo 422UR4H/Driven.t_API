@@ -162,18 +162,18 @@ describe('GET /hotels/:hotelId', () => {
                         id: expect.any(Number),
                         name: expect.any(String),
                         image: expect.any(String),
-                        createdAt: expect.any(Date),
-                        updatedAt: expect.any(Date),
-                        Rooms: expect.arrayContaining(
+                        createdAt: expect.any(String),
+                        updatedAt: expect.any(String),
+                        Rooms: expect.arrayContaining([
                             expect.objectContaining({
                                 id: expect.any(Number),
                                 name: expect.any(String),
                                 capacity: expect.any(Number),
                                 hotelId: expect.any(Number),
-                                createdAt: expect.any(Date),
-                                updatedAt: expect.any(Date),
+                                createdAt: expect.any(String),
+                                updatedAt: expect.any(String),
                             })
-                        )
+                        ])
                     })
                 );
             });
@@ -311,15 +311,15 @@ describe('GET /hotels', () => {
                 const { status, body } = await server.get(`/hotels`).set('Authorization', `Bearer ${token}`);
                 expect(status).toBe(httpStatus.OK);
                 expect(body).toEqual(
-                    expect.arrayContaining(
+                    expect.arrayContaining([
                         expect.objectContaining({
                             id: expect.any(Number),
                             name: expect.any(String),
                             image: expect.any(String),
-                            createdAt: expect.any(Date),
-                            updatedAt: expect.any(Date),
+                            createdAt: expect.any(String),
+                            updatedAt: expect.any(String),
                         })
-                    )
+                    ])
                 );
             });
         });
